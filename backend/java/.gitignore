@@ -1,0 +1,23 @@
+﻿# Build outputs
+build/
+target/
+*.jar
+*.war
+
+# Gradle
+.gradle
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Logs
+*.log
+logs/
