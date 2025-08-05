@@ -1,68 +1,82 @@
 ﻿using csharp.Models;
+using csharp.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Materialise.Candidate.Backend.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
     public class ItemsController : ControllerBase
     {
-        private static readonly List<string> _items = new();
-        private static readonly List<AuditEntry> _auditTrail = new();
+        private readonly ItemService _itemService;
+        private readonly ILogger<ItemsController> _logger;
+
+        public ItemsController(ItemService itemService,ILogger<ItemsController> logger)
+        {
+            _itemService = itemService;
+            _logger = logger;
+        }
 
         [HttpGet]
         public ActionResult<IEnumerable<string>> GetItems()
         {
-            return Ok(_items.ToList());
+            try
+            {
+                return Ok(_itemService.GetItems());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get items.");
+                return StatusCode(500, $"Error getting items: {ex.Message}");
+            }
         }
 
         [HttpPost]
         public ActionResult<string> AddItem([FromBody] string item)
         {
-            var trimmedItem = item?.Trim();
-            _items.Add(trimmedItem);
-            _auditTrail.Add(new AuditEntry
+            try
             {
-                Action = "Add",
-                Item = trimmedItem,
-                Timestamp = DateTime.UtcNow,
-                performedBy = "TestUser"
-
-            });
-            return CreatedAtAction(nameof(GetItems), $"Item '{trimmedItem}' added successfully");
+                var result = _itemService.AddItem(item);
+                return CreatedAtAction(nameof(GetItems), result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to add item.");
+                return StatusCode(500, $"Error adding item: {ex.Message}");
+            }
         }
 
         [HttpDelete]
         public ActionResult<string> DeleteItem([FromBody] string item)
         {
-            var found = false;
-            for (int i = 0; i < _items.Count; i++)
+            try
             {
-                if (_items[i] == item)
-                {
-                    _items.RemoveAt(i);
-                    found = true;
-
-                    _auditTrail.Add(new AuditEntry
-                    {
-                        Action = "Delete",
-                        Item = item,
-                        Timestamp = DateTime.UtcNow,
-                        performedBy = "TestUser"
-                    });
-
-                    break;
-                }
+                var result = _itemService.DeleteItem(item);
+                return Ok(result);
             }
-            return Ok($"Item '{item}' deleted successfully");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to delete item.");
+                return StatusCode(500, $"Error deleting item: {ex.Message}");
+            }
         }
+
         [HttpGet("audit")]
         public ActionResult<IEnumerable<AuditEntry>> GetAuditTrail([FromHeader] string role)
         {
-            if (role != "Admin")
-                return Unauthorized("Only admins can access the audit trail.");
+            try
+            {
+                if (role != "Admin")
+                    return Unauthorized("Only admins can access the audit trail.");
 
-            return Ok(_auditTrail);
+                return Ok(_itemService.GetAuditTrail(role));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to retrieve audit trail.");
+                return StatusCode(500, $"Error getting audit trail: {ex.Message}");
+            }
         }
     }
 }

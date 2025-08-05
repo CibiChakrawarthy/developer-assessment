@@ -1,4 +1,5 @@
 ﻿
+using csharp.Services;
 using Materialise.Candidate.Backend;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+builder.Services.AddSingleton<ItemService>();
 
 var app = builder.Build();
 
