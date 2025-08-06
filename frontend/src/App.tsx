@@ -59,6 +59,28 @@ function App() {
     setItems(items.filter(i => i !== item));
     setLoading(false);
   };
+    const [auditTrail, setAuditTrail] = useState<any[]>([]); // audit log
+
+    const fetchAuditTrail = async () => {
+        try {
+            const response = await fetch(`${backend}/audit`, {
+                headers: {
+                    'role': role,
+                    'username': username
+                }
+            });
+
+            if (!response.ok) {
+                alert("Access denied or error occurred.");
+                return;
+            }
+
+            const result = await response.json();
+            setAuditTrail(result.data);
+        } catch (err) {
+            alert("Failed to fetch audit trail.");
+        }
+    };
 
   return (
     <div style={{ 
@@ -83,7 +105,13 @@ function App() {
               />
           </div>
 
-      <h1>Items Manager</h1>
+          <h1>Items Manager</h1>
+          {role === "Admin" && (
+              <div style={{ marginBottom: 16 }}>
+                  <button onClick={fetchAuditTrail}>Fetch Audit Trail</button>
+              </div>
+          )}
+
       <div style={{ marginBottom: 16 }}>
         <label htmlFor="backend-select">Backend:</label>
         <select 
@@ -141,7 +169,21 @@ function App() {
             </li>
           ))
         )}
-      </ul>
+          </ul>
+          {role === "Admin" && auditTrail.length > 0 && (
+              <div>
+                  <h3>Audit Trail</h3>
+                  <ul>
+                      {auditTrail.map((entry, index) => (
+                          <li key={index}>
+                              <strong>{entry.action}</strong> → {entry.item} <br />
+                              <em>{new Date(entry.timestamp).toLocaleString()}</em> by <strong>{entry.performedBy}</strong>
+                          </li>
+                      ))}
+                  </ul>
+              </div>
+          )}
+
     </div>
   );
 }

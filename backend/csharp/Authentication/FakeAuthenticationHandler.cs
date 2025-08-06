@@ -16,8 +16,14 @@ namespace csharp.Authentication
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             // Get role from header
-            var role = Request.Headers["role"].ToString() ?? "User";
+           
             var username = Request.Headers["username"].ToString() ?? "Guest";
+            string role = username.ToLower() switch
+            {
+                "cibi" => "Admin",
+                "john" => "User",
+                _ => "User"
+            };
 
             // Create identity and principal
             var claims = new[] {
