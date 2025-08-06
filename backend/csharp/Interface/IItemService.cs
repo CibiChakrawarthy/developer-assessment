@@ -1,6 +1,6 @@
 ﻿using csharp.Models;
 
-namespace csharp.Services
+namespace csharp.Interface
 {
     
         public interface IItemService

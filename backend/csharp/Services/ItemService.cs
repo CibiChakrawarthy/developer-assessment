@@ -1,3 +1,4 @@
+using csharp.Interface;
 using csharp.Models;
 
 namespace csharp.Services
@@ -47,7 +48,7 @@ namespace csharp.Services
         public IEnumerable<AuditEntry> GetAuditTrail(string role)
         {
             if (role != "Admin")
-                return Enumerable.Empty<AuditEntry>(); // Let controller handle 401
+                return Enumerable.Empty<AuditEntry>(); 
 
             return _auditTrail;
         }

@@ -2,6 +2,7 @@
 using Materialise.Candidate.Backend;
 using Microsoft.AspNetCore.Authentication;
 using csharp.Authentication;
+using csharp.Interface;
 
 
 var builder = WebApplication.CreateBuilder(args);
