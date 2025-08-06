@@ -18,8 +18,8 @@ function App() {
   const fetchItems = async () => {
     setLoading(true);
     const response = await fetch(backend);
-    const data = await response.json();
-    setItems(data);
+      const result = await response.json();
+      setItems(result.data);
     setTimeout(() => setLoading(false), 100);
   };
 
