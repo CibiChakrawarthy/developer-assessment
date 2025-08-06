@@ -26,7 +26,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddAuthentication("FakeAuth")
-    .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>("FakeAuth", null);
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("FakeAuth", null);
 
 builder.Services.AddAuthorization();
 

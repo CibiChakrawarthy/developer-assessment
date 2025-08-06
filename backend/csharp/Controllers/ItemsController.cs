@@ -1,9 +1,7 @@
 ﻿using csharp.Interface;
 using csharp.Models;
-using csharp.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace csharp.Controllers
 {
@@ -21,6 +19,9 @@ namespace csharp.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Gets the list of all items.
+        /// </summary>
         [HttpGet]
         public ActionResult<ApiResponse<IEnumerable<string>>> GetItems()
         {
@@ -44,6 +45,9 @@ namespace csharp.Controllers
             }
         }
 
+        /// <summary>
+        /// Adds a new item and logs the audit entry.
+        /// </summary>
         [HttpPost]
         public ActionResult<ApiResponse<string>> AddItem([FromBody] ItemRequestDto request)
         {
@@ -69,6 +73,9 @@ namespace csharp.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes an item and logs the audit entry.
+        /// </summary>
         [HttpDelete]
         public ActionResult<ApiResponse<string>> DeleteItem([FromBody] ItemRequestDto item)
         {
@@ -93,10 +100,14 @@ namespace csharp.Controllers
                 });
             }
         }
-        
+
+        /// <summary>
+        /// Returns the audit trail of all actions.
+        /// Accessible only to Admin users.
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet("audit")]
-        public ActionResult<ApiResponse<IEnumerable<AuditEntry>>> GetAuditTrail([FromHeader] string role)
+        public ActionResult<ApiResponse<IEnumerable<AuditEntry>>> GetAuditTrail([FromHeader] string role, [FromHeader] string username )
         {
             try
             {
@@ -109,7 +120,7 @@ namespace csharp.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to get audit trail.");
+                _logger.LogError(ex, "Dont have the required access to get audit trail.");
                 return StatusCode(500, new ApiResponse<IEnumerable<AuditEntry>>
                 {
                     Data = null,

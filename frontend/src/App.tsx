@@ -28,8 +28,12 @@ function App() {
   }, [backend]);
 
   const addItem = async () => {
-    if (!input.trim()) return;
-    
+      if (!input.trim()) return;
+
+      if (!username.trim()) {
+          alert("Please enter a username before adding an item.");
+          return;
+      }
     setLoading(true);
     await fetch(backend, {
       method: 'POST',
@@ -71,7 +75,7 @@ function App() {
             });
 
             if (!response.ok) {
-                alert("Access denied or error occurred.");
+                alert("Access denied");
                 return;
             }
 

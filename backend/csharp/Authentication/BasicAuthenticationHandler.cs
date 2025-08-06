@@ -5,9 +5,9 @@ using System.Text.Encodings.Web;
 
 namespace csharp.Authentication
 {
-    public class FakeAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        public FakeAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+        public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
                                          ILoggerFactory logger,
                                          UrlEncoder encoder,
                                          ISystemClock clock)
