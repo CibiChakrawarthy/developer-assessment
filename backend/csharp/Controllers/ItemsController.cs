@@ -111,7 +111,7 @@ namespace csharp.Controllers
         {
             try
             {
-                var result = _itemService.GetAuditTrail("Admin");
+                var result = _itemService.GetAuditTrail(role);
                 return Ok(new ApiResponse<IEnumerable<AuditEntry>>
                 {
                     Data = result,
