@@ -1,6 +1,8 @@
-﻿
-using csharp.Services;
+﻿using csharp.Services;
 using Materialise.Candidate.Backend;
+using Microsoft.AspNetCore.Authentication;
+using csharp.Authentication;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,8 @@ builder.Services.AddControllers(options =>
 {
     options.InputFormatters.Insert(0, new PlainTextInputFormatter());
 });
+builder.Services.AddSingleton<IItemService, ItemService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
@@ -19,7 +23,11 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-builder.Services.AddSingleton<ItemService>();
+
+builder.Services.AddAuthentication("FakeAuth")
+    .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>("FakeAuth", null);
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -30,5 +38,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 await app.RunAsync();

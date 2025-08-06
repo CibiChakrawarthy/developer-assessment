@@ -2,7 +2,7 @@ using csharp.Models;
 
 namespace csharp.Services
 {
-    public class ItemService
+    public class ItemService : IItemService
     {
         private readonly List<string> _items = new();
         private readonly List<AuditEntry> _auditTrail = new();
@@ -10,7 +10,7 @@ namespace csharp.Services
         {
             return _items.ToList();
         }
-        public string AddItem(string item)
+        public string AddItem(string item, string performedBy)
         {
             var trimmedItem = item?.Trim();
             _items.Add(trimmedItem);
@@ -19,11 +19,11 @@ namespace csharp.Services
                 Action = "Add",
                 Item = trimmedItem,
                 Timestamp = DateTime.UtcNow,
-                performedBy = "TestUser"
+                performedBy = performedBy
             });
             return $"Item '{trimmedItem}' added successfully";
         }
-        public string DeleteItem(string item)
+        public string DeleteItem(string item, string performedBy)
         {
             var found = false;
             for (int i = 0; i < _items.Count; i++)
@@ -37,7 +37,7 @@ namespace csharp.Services
                         Action = "Delete",
                         Item = item,
                         Timestamp = DateTime.UtcNow,
-                        performedBy = "TestUser"
+                        performedBy = performedBy
                     });
                     break;
                 }

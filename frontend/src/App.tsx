@@ -7,7 +7,10 @@ const BACKENDS = [
 ];
 
 function App() {
-  const [backend, setBackend] = useState(BACKENDS[0].url);
+    const [backend, setBackend] = useState(BACKENDS[0].url);
+    const [role, setRole] = useState("User");
+    const [username, setUsername] = useState("Guest");
+
   const [items, setItems] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,8 +33,12 @@ function App() {
     setLoading(true);
     await fetch(backend, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: input.trim(),
+        headers: {
+            'Content-Type': 'application/json',
+            'role': role,
+            'username': username, 
+        },
+        body: JSON.stringify({ value: input.trim() }),
     });
     setInput('');
     setItems([...items, input.trim()]);
@@ -42,8 +49,12 @@ function App() {
     setLoading(true);
     await fetch(backend, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'text/plain' },
-      body: item,
+        headers: {
+            'Content-Type': 'application/json',
+            'role': role,
+            'username': username
+        },
+        body: JSON.stringify({ value: item }),
     });
     setItems(items.filter(i => i !== item));
     setLoading(false);
@@ -54,7 +65,24 @@ function App() {
       maxWidth: '600px', 
       margin: '0 auto', 
       padding: '20px' 
-    }}>
+      }}>
+          <div style={{ marginBottom: 16 }}>
+              <label>Role:</label>
+              <select value={role} onChange={e => setRole(e.target.value)} style={{ marginRight: 16 }}>
+                  <option value="Admin">Admin</option>
+                  <option value="User">User</option>
+              </select>
+
+              <label>Username:</label>
+              <input
+                  type="text"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  placeholder="Enter username"
+                  style={{ marginLeft: 8 }}
+              />
+          </div>
+
       <h1>Items Manager</h1>
       <div style={{ marginBottom: 16 }}>
         <label htmlFor="backend-select">Backend:</label>

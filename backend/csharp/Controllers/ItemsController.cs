@@ -1,18 +1,19 @@
 ﻿using csharp.Models;
 using csharp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Materialise.Candidate.Backend.Controllers
+namespace csharp.Controllers
 {
 
     [ApiController]
     [Route("api/[controller]")]
     public class ItemsController : ControllerBase
     {
-        private readonly ItemService _itemService;
+        private readonly IItemService _itemService;
         private readonly ILogger<ItemsController> _logger;
 
-        public ItemsController(ItemService itemService,ILogger<ItemsController> logger)
+        public ItemsController(IItemService itemService,ILogger<ItemsController> logger)
         {
             _itemService = itemService;
             _logger = logger;
@@ -33,11 +34,12 @@ namespace Materialise.Candidate.Backend.Controllers
         }
 
         [HttpPost]
-        public ActionResult<string> AddItem([FromBody] string item)
+        public ActionResult<string> AddItem([FromBody] ItemRequestDto request)
         {
-            try
+            try            
             {
-                var result = _itemService.AddItem(item);
+                var performedBy = User.Identity?.Name ?? "Unknown";
+                var result = _itemService.AddItem(request.Value, performedBy);
                 return CreatedAtAction(nameof(GetItems), result);
             }
             catch (Exception ex)
@@ -48,11 +50,12 @@ namespace Materialise.Candidate.Backend.Controllers
         }
 
         [HttpDelete]
-        public ActionResult<string> DeleteItem([FromBody] string item)
+        public ActionResult<string> DeleteItem([FromBody] ItemRequestDto item)
         {
             try
             {
-                var result = _itemService.DeleteItem(item);
+                var performedBy = User.Identity?.Name ?? "Unknown";
+                var result = _itemService.DeleteItem(item.Value, performedBy);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -62,21 +65,11 @@ namespace Materialise.Candidate.Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("audit")]
         public ActionResult<IEnumerable<AuditEntry>> GetAuditTrail([FromHeader] string role)
         {
-            try
-            {
-                if (role != "Admin")
-                    return Unauthorized("Only admins can access the audit trail.");
-
-                return Ok(_itemService.GetAuditTrail(role));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to retrieve audit trail.");
-                return StatusCode(500, $"Error getting audit trail: {ex.Message}");
-            }
+            return Ok(_itemService.GetAuditTrail("Admin"));
         }
     }
 }
